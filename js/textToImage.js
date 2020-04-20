@@ -47,9 +47,11 @@ function AnimateImages(text){
       correspondingImage = images[text[i]]
     }
 
-    if ((correspondingImage === null)){
+    if (correspondingImage === null)
       continue;
-    }
+
+    if (correspondingImage === undefined)
+    continue;
 
     console.log(correspondingImage);
 

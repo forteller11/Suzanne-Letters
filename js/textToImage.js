@@ -103,7 +103,6 @@ function AnimateImages(text){
 
 function DisplayTextImage(char){
   var p = document.createElement("text");
-  p.style.color = "black";
   p.textContent = char;
   p.style.opacity = 0;
   p.classList.add("currentCharacterDisplay");

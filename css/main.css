@@ -4,6 +4,8 @@
   margin:0;
   padding:0;
   background-color: white;
+  font-family: sans-serif;
+  font-size: 10px;
 }
 #SuzanneImageContainer {
   min-width: 384px;
@@ -26,9 +28,9 @@
 }
 
 .currentCharacterDisplay{
-  transition: position;
-  transition-duration: 3s;
-  color:red;
+    font-family: monospace;
+  /* color:rgb(180,180,180); */
+  color: black;
 }
 
 body{

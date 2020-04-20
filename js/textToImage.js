@@ -47,7 +47,12 @@ function AnimateImages(text){
   for (let i = 0; i < text.length; i++){
 
     let correspondingImage;
-    if (text[i] === " "){
+    //if a punctuation or space, make the image a blank
+    if ((text[i] === " ") ||
+        (text[i] === ",") ||
+        (text[i] === ".") ||
+        (text[i] === ":") ||
+        (text[i] === ";")){
       correspondingImage = images['blank'];
     } else {
       correspondingImage = images[text[i]]

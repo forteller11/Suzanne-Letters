@@ -23,7 +23,12 @@
   background-color: blue;
   transition: opacity;
   transition-duration: 1s;
+}
 
+.currentCharacterDisplay{
+  transition: position;
+  transition-duration: 3s;
+  color:red;
 }
 
 body{

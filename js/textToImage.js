@@ -3,15 +3,17 @@
 window.onload = main;
 let textbox;
 let imageContainer;
+let currentCharacterDisplay;
 let images = [];
 let timeBetweenImages = 650;
 let startOfAssciLowerCaseA = 97;
 let lettersInAlphabet = 26;
+let FRAME_RATE = 16.7;
 function main() {
   console.log("main");
   textbox = window.document.getElementById("textbox");
-  imageContainer = window.document.getElementById("SuzanneImageContainer")
-
+  imageContainer = window.document.getElementById("SuzanneImageContainer");
+  currentCharacterDisplay = window.document.getElementById("currentCharacterDisplay");
 textbox.placeholder = "Type words here then press \"enter\"";
   //TODO cycle through alphabet in forloop, get images, then display them in aniamtion
 
@@ -25,6 +27,9 @@ textbox.placeholder = "Type words here then press \"enter\"";
     if (text.key === "Enter") {
       textbox.placeholder = "";
       window.clearTimeout(AnimateImages);
+      // for (let i = 0; i < currentCharacterDisplay.children.length; i ++){
+      //   currentCharacterDisplay.removeChild(currentCharacterDisplay.children[i]);
+      // }
       AnimateImages(textbox.value);
       textbox.value = "";
     }
@@ -38,7 +43,6 @@ function MakeAllImagesTransparent(){
   images['blank'].style.opacity = 0;
 }
 function AnimateImages(text){
-
   MakeAllImagesTransparent();
   console.log(text);
   if (text[0] === undefined)
@@ -71,9 +75,8 @@ function AnimateImages(text){
         }
     }
 
-    console.log(correspondingImage);
-
     correspondingImage.style.opacity = 1;
+    DisplayTextImage(text[i]);
     let newText = text.slice(i+1);
 
     console.log("newtext "+newText);
@@ -86,6 +89,10 @@ function AnimateImages(text){
       window.setTimeout( () => {
         MakeAllImagesTransparent();
         images['blank'].style.opacity = 1;
+        for (let i = 0; i < currentCharacterDisplay.children.length; i ++){
+          let p = currentCharacterDisplay.children[i];
+          window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, p, -0.03)
+        }
       },
     timeBetweenImages)
     }
@@ -94,15 +101,35 @@ function AnimateImages(text){
   }
 }
 
+function DisplayTextImage(char){
+  var p = document.createElement("text");
+  p.style.color = "black";
+  p.textContent = char;
+  p.style.opacity = 0;
+  p.classList.add("currentCharacterDisplay");
+  currentCharacterDisplay.appendChild(p);
+  window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, p, 0.03);
+}
 function imageFromName(imgName){
   let image = new Image();
   image.src = "images/letters/" + imgName + ".jpg";
   image.classList.add("opacityFade");
-  console.log(image.src);
   image.style.opacity = 0;
   image.style.position = "absolute";
   imageContainer.appendChild(image);
   image.height = 256;
   images[imgName] = image;
   return image;
+}
+
+function IncreaseOpacityEachFrame(element, step){
+  let opacityNumber = parseFloat(element.style.opacity);
+  element.style.opacity = opacityNumber + step;
+  opacityNumber = parseFloat(element.style.opacity);
+  if ((opacityNumber < 1) && (opacityNumber >= 0))
+    window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, element, step);
+  else if  (opacityNumber < 0){
+    element.parentElement.removeChild(element);
+    //removeElement(element);
+  }
 }

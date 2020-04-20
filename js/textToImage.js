@@ -72,7 +72,7 @@ function AnimateImages(text){
 
 function imageFromName(imgName){
   let image = new Image();
-  image.src = "assets/letters/" + imgName + ".jpg";
+  image.src = "images/letters/" + imgName + ".jpg";
   console.log(image.src);
   image.style.opacity = 0;
   image.style.position = "absolute";

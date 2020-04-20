@@ -1,0 +1,31 @@
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  background-color: white;
+}
+#SuzanneImageContainer {
+  min-width: 384px;
+  min-height :256px;
+  background-color: red;
+  margin: 0 auto;
+}
+#textbox{
+  width:384px;
+  animation: width 0.5s ease-in-out ;
+  animation-duration: 1s;
+  /*background-color: #cccccc;*/
+  margin:8px;
+  align-content: center;
+}
+body{
+  margin-top:32px;
+}
+.flexcenter{
+  display:flex;
+  flex-flow: column;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

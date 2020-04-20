@@ -69,8 +69,9 @@ function AnimateImages(text){
 }
 
 function imageFromName(imgName){
-  let image = document.createElement("img");
-  image.src = "../Assets/Letters/" + imgName + ".jpg";
+  let image = new Image();
+  image.src = "assets/letters/" + imgName + ".jpg";
+  console.log(image.src);
   image.style.opacity = 0;
   image.style.position = "absolute";
   imageContainer.appendChild(image);

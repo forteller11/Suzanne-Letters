@@ -4,7 +4,7 @@ window.onload = main;
 let textbox;
 let imageContainer;
 let images = [];
-let timeBetweenImages = 400;
+let timeBetweenImages = 650;
 let startOfAssciLowerCaseA = 97;
 let lettersInAlphabet = 26;
 function main() {

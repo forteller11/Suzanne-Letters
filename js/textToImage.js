@@ -85,6 +85,7 @@ function AnimateImages(text){
     } else { //set to blank when no text left
       window.setTimeout( () => {
         images['blank'].makeFirstChild();
+        images['blank'].alpha = 0;
         images['blank'].fadeIn();
         fadeOutAllText();
       },

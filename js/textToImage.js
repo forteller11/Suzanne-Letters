@@ -120,25 +120,22 @@ function AnimateImages(input) {
   if (input.pastEndOfText() === false) {
     input.incrementCharacter();
     window.setTimeout(
-      AnimateImages,
-      timeBetweenImages,
-      input);
+     AnimateImages,
+     timeBetweenImages,
+     input);
+  };
+
+  if (input.pastEndOfText()){
+    window.setTimeout(fadeOutAllText, timeBetweenImages);
+    //prune array
+    for (let i = 0; i < characters.length; i++) {
+      if (characters[i].character === null)
+        characters.splice(i,1);
+    }
   }
 
 }
 
-
-function IncreaseOpacityEachFrame(element, step) {
-  let opacityNumber = parseFloat(element.style.opacity);
-  element.style.opacity = opacityNumber + step;
-  opacityNumber = parseFloat(element.style.opacity);
-
-  if (opacityNumber < 0) {
-    element.parentElement.removeChild(element);
-  } else if ((opacityNumber < 1) && (opacityNumber >= 0)) {
-    window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, element, step);
-  }
-}
 
 class ImageClass {
   constructor(imgName, alpha = 1) {
@@ -202,16 +199,17 @@ get alpha() {
 
 set alpha(newAlpha) {
   this._alpha = newAlpha;
-  this.character.style.opacity = newAlpha;
+  if (!(this.character === null))
+    this.character.style.opacity = newAlpha;
 }
 
-fadeIn(alphaStep = 0.05) {
+fadeIn(alphaStep = 0.06) {
   this.alpha += alphaStep;
 
-  if (this.alpha < 0) {
-    console.log(this.character.parentElement);
-    this.character.parentElement.removeChild(this.character);
-    characters.splice(4, 1, this);
+  if ((this.alpha < 0) && (!(this.character === null))) {
+    let parent = this.character.parentElement;
+    this.character.remove();
+    this.character = null;
   }
 
   if (isBetweenInclusive(this.alpha, 0, 1)) {

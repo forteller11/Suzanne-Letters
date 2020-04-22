@@ -8,6 +8,7 @@ let images = [];
 let timeBetweenImages = 450;
 let startOfAssciLowerCaseA = 97;
 let lettersInAlphabet = 26;
+let characters = [];
 let FRAME_RATE = 16.7;
 function main() {
   console.log("main");
@@ -57,11 +58,13 @@ function AnimateImages(text){
     if (correspondingImage === undefined)
       continue;
 
+      characters.push(new CharacterClass(text[i]));
+      characters[characters.length-1].fadeIn();
+
     if (correspondingImage === undefined){
       if (text.length <= 1){ //if unknown text at end, end with blank
         correspondingImage.alpha = 0;
-        correspondingImage.makeFirstChild();
-        correspondingImage.fadeInAndOut();
+        correspondingImage.fadeIn();
         return;
       }
         else{ //if unknown char in center of text, skip it
@@ -71,8 +74,7 @@ function AnimateImages(text){
 
     correspondingImage.alpha = 0;
     correspondingImage.makeFirstChild();
-    correspondingImage.fadeInAndOut();
-    DisplayTextImage(text[i]);
+    correspondingImage.fadeIn();
     let newText = text.slice(i+1);
 
     if (newText.length > 0){
@@ -82,11 +84,9 @@ function AnimateImages(text){
         newText);
     } else { //set to blank when no text left
       window.setTimeout( () => {
-        images['blank'].alpha = 1;
-        for (let i = 0; i < currentCharacterDisplay.children.length; i ++){
-          let p = currentCharacterDisplay.children[i];
-          window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, p, -0.03)
-        }
+        images['blank'].makeFirstChild();
+        images['blank'].fadeIn();
+        fadeOutAllText();
       },
     timeBetweenImages)
     }
@@ -95,14 +95,6 @@ function AnimateImages(text){
   }
 }
 
-function DisplayTextImage(char){
-  var p = document.createElement("text");
-  p.textContent = char;
-  p.style.opacity = 0;
-  p.classList.add("currentCharacterDisplay");
-  currentCharacterDisplay.appendChild(p);
-  window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, p, 0.03);
-}
 
 function IncreaseOpacityEachFrame(element, step){
   let opacityNumber = parseFloat(element.style.opacity);
@@ -126,8 +118,56 @@ class ImageClass {
     image.style.position = "absolute";
     imageContainer.appendChild(image);
     image.height = 256;
-    this.element = image;
-    this.name = imgName;
+    this.image = image;
+  }
+
+  get alpha() {
+    return this._alpha;
+  }
+
+  set alpha(newAlpha) {
+    this._alpha = parseFloat(newAlpha);
+    this.image.style.opacity = newAlpha;
+  }
+
+  makeFirstChild() {
+    let parent = this.image.parentElement;
+    parent.removeChild(this.image);
+    parent.appendChild(this.image);
+  }
+
+  fadeIn(alphaStep=0.3) {
+    this.alpha += alphaStep;
+
+    if (isBetweenInclusive(this.alpha,0,1)){
+      window.requestAnimationFrame(() => {
+        this.fadeIn(alphaStep)
+      });
+    }
+
+    this.alpha = clamp01(this.alpha);
+  }
+}
+class CharacterClass{
+  constructor(charName, alpha=0){
+    let char = charName;
+    if (char === 'blank')
+      char = " ";
+    if ((charName === " ") ||
+        (charName === ",") ||
+        (charName === ".") ||
+        (charName === ":") ||
+        (charName === ";")){
+      char = "";
+    }
+    var p = document.createElement("text");
+    p.textContent = char;
+    p.style.opacity = alpha;
+    p.classList.add("currentCharacterDisplay");
+    currentCharacterDisplay.appendChild(p);
+    this.character = p;
+
+    this.name = charName;
     this._alpha = alpha;
   }
 
@@ -137,22 +177,22 @@ class ImageClass {
 
   set alpha(newAlpha) {
     this._alpha = parseFloat(newAlpha);
-    this.element.style.opacity = newAlpha;
+    this.character.style.opacity = newAlpha;
   }
 
-  makeFirstChild() {
-    let parent = this.element.parentElement;
-    parent.removeChild(this.element);
-    parent.appendChild(this.element);
-  }
-
-  fadeInAndOut(alphaStep=0.13) {
+  fadeIn(alphaStep=0.05) {
     this.alpha += alphaStep;
 
     if (isBetweenInclusive(this.alpha,0,1)){
       window.requestAnimationFrame(() => {
-        this.fadeInAndOut(alphaStep)
+        this.fadeIn(alphaStep)
       });
+
+      if (this.alpha < 0){
+        console.log(this.character.parentElement);
+      this.character.parentElement.removeChild(this.character);
+      characters.splice(4, 1, this);
+    }
     }
 
     this.alpha = clamp01(this.alpha);
@@ -169,4 +209,10 @@ function isBetweenInclusive(value, min,max){
 
   if ((value >= min) && (value <= max)) return true;
   return false;
+}
+
+function fadeOutAllText(){
+  for (let i = 0; i < characters.length; i++){
+    characters[i].fadeIn(-0.01);
+  }
 }

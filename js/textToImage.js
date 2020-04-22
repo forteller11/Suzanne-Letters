@@ -5,7 +5,7 @@ let textbox;
 let imageContainer;
 let currentCharacterDisplay;
 let images = [];
-let timeBetweenImages = 450;
+let timeBetweenImages = 350;
 let startOfAssciLowerCaseA = 97;
 let lettersInAlphabet = 26;
 let characters = [];
@@ -114,7 +114,11 @@ function AnimateImages(input) {
   if (!(input.currentImageKey === input.previousImageKey)){
     correspondingImage.alpha = 0;
     correspondingImage.makeFirstChild();
-    correspondingImage.fadeIn();
+    if ((!(input.currentImageKey === 'blank')) ||
+    (input.pastEndOfText() === true) ||
+    ((input.currentCharacter === '.'))){
+      correspondingImage.fadeIn();
+    }
   }
 
   if (input.pastEndOfText() === false) {
@@ -147,6 +151,7 @@ class ImageClass {
     imageContainer.appendChild(image);
     image.height = 256;
     this.image = image;
+    this.alphaStep = .6;
   }
 
   get alpha() {
@@ -154,7 +159,7 @@ class ImageClass {
   }
 
   set alpha(newAlpha) {
-    this._alpha = parseFloat(newAlpha);
+    this._alpha = newAlpha;
     this.image.style.opacity = newAlpha;
   }
 
@@ -164,12 +169,12 @@ class ImageClass {
     parent.appendChild(this.image);
   }
 
-  fadeIn(alphaStep = 0.3) {
-    this.alpha += alphaStep;
+  fadeIn(alphaMax =1) {
+    this.alpha += this.alphaStep;
 
-    if (isBetweenInclusive(this.alpha, 0, 1)) {
+    if (isBetweenInclusive(this.alpha, 0, alphaMax)) {
       window.requestAnimationFrame(() => {
-        this.fadeIn(alphaStep)
+        this.fadeIn(alphaMax)
       });
     }
 

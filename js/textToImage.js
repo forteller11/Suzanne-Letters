@@ -10,15 +10,16 @@ let startOfAssciLowerCaseA = 97;
 let lettersInAlphabet = 26;
 let characters = [];
 let FRAME_RATE = 16.7;
+
 function main() {
   console.log("main");
   textbox = window.document.getElementById("textbox");
   imageContainer = window.document.getElementById("SuzanneImageContainer");
   currentCharacterDisplay = window.document.getElementById("currentCharacterDisplay");
-textbox.placeholder = "Type words here then press \"enter\"";
+  textbox.placeholder = "Type words here then press \"enter\"";
   //TODO cycle through alphabet in forloop, get images, then display them in aniamtion
 
-  for (let i = startOfAssciLowerCaseA; i < startOfAssciLowerCaseA + lettersInAlphabet; i++){
+  for (let i = startOfAssciLowerCaseA; i < startOfAssciLowerCaseA + lettersInAlphabet; i++) {
     let alphabet = String.fromCharCode(i);
     let image = new ImageClass(alphabet, 0);
     images[alphabet] = image;
@@ -31,81 +32,110 @@ textbox.placeholder = "Type words here then press \"enter\"";
     if (text.key === "Enter") {
       textbox.placeholder = "";
       window.clearTimeout(AnimateImages);
-      AnimateImages(textbox.value);
+      AnimateImages(new InputText(textbox.value));
       textbox.value = "";
     }
   })
 }
+class InputText {
+  constructor(string) {
+    this._text = string;
+    this._index = 0;
+    this.previousImageKey = undefined;
+    this.currentImageKey = this.calculateImageKeyFromCharacter(this.currentCharacter);
+  }
 
-function AnimateImages(text){
-  if (text[0] === undefined)
-    images['blank'].style.opacity = 1;
 
-  for (let i = 0; i < text.length; i++){
+  get previousCharacter() {
+    if (this._index === 0)
+      return undefined;
+    return this._text[this._index - 1];
+  }
+  get currentCharacter() {
+    if (this.pastEndOfText())
+      return undefined;
+    return this._text[this._index];
+  }
 
-    let correspondingImage;
-    //if a punctuation or space, make the image a blank
-    if ((text[i] === " ") ||
-        (text[i] === ",") ||
-        (text[i] === ".") ||
-        (text[i] === ":") ||
-        (text[i] === ";")){
-      correspondingImage = images['blank'];
-    } else {
-      correspondingImage = images[text[i]]
+  pastEndOfText() {
+    if (this._index >= this._text.length)
+      return true;
+    return false;
+  }
+
+  incrementCharacter() {
+    this._index++;
+    this.previousImageKey = this.currentImageKey;
+    this.currentImageKey = this.calculateImageKeyFromCharacter(this.currentCharacter);
+  }
+
+  calculateImageKeyFromCharacter(char){
+    if ((InputText.isAlphabet(char) === false) || (this.pastEndOfText()) )
+      return 'blank';
+    else
+      return char;
+  }
+
+  static isPunctuation(char) {
+    if ((char === " ") ||
+      (char === ",") ||
+      (char === ".") ||
+      (char === ":") ||
+      (char === ";"))
+      return true;
+    else return false;
+  }
+
+  static isAlphabet(char) {
+    for (let i = 97; i < 97 + 26; i++) {
+      if (char === String.fromCharCode(i))
+        return true;
     }
-
-    if (correspondingImage === undefined)
-      continue;
-
-      characters.push(new CharacterClass(text[i]));
-      characters[characters.length-1].fadeIn();
-
-    if (correspondingImage === undefined){
-      if (text.length <= 1){ //if unknown text at end, end with blank
-        correspondingImage.alpha = 0;
-        correspondingImage.fadeIn();
-        return;
-      }
-        else{ //if unknown char in center of text, skip it
-          continue;
-        }
-    }
-
-    correspondingImage.alpha = 0;
-    correspondingImage.makeFirstChild();
-    correspondingImage.fadeIn();
-    let newText = text.slice(i+1);
-
-    if (newText.length > 0){
-      window.setTimeout(
-        AnimateImages,
-        timeBetweenImages,
-        newText);
-    } else { //set to blank when no text left
-      window.setTimeout( () => {
-        images['blank'].makeFirstChild();
-        images['blank'].alpha = 0;
-        images['blank'].fadeIn();
-        fadeOutAllText();
-      },
-    timeBetweenImages)
-    }
-    return;
-
+    return false;
   }
 }
 
+function AnimateImages(input) {
 
-function IncreaseOpacityEachFrame(element, step){
+  while (
+    (InputText.isAlphabet(input.currentCharacter) === false) &&
+    (InputText.isPunctuation(input.currentCharacter) === false) &&
+    (input.pastEndOfText(input.currentCharacter) === false)) {
+    input.incrementCharacter();
+    AnimateImages(input);
+    return;
+  }
+
+  characters.push(new CharacterClass(input.currentCharacter));
+  characters[characters.length - 1].fadeIn();
+
+  let correspondingImage = images[input.currentImageKey];
+
+  if (!(input.currentImageKey === input.previousImageKey)){
+    correspondingImage.alpha = 0;
+    correspondingImage.makeFirstChild();
+    correspondingImage.fadeIn();
+  }
+
+  if (input.pastEndOfText() === false) {
+    input.incrementCharacter();
+    window.setTimeout(
+      AnimateImages,
+      timeBetweenImages,
+      input);
+  }
+
+}
+
+
+function IncreaseOpacityEachFrame(element, step) {
   let opacityNumber = parseFloat(element.style.opacity);
   element.style.opacity = opacityNumber + step;
   opacityNumber = parseFloat(element.style.opacity);
 
-  if  (opacityNumber < 0){
+  if (opacityNumber < 0) {
     element.parentElement.removeChild(element);
-  }
-  else if ((opacityNumber < 1) && (opacityNumber >= 0)){
+  } else if ((opacityNumber < 1) && (opacityNumber >= 0)) {
     window.setTimeout(IncreaseOpacityEachFrame, FRAME_RATE, element, step);
   }
 }
@@ -137,10 +167,10 @@ class ImageClass {
     parent.appendChild(this.image);
   }
 
-  fadeIn(alphaStep=0.3) {
+  fadeIn(alphaStep = 0.3) {
     this.alpha += alphaStep;
 
-    if (isBetweenInclusive(this.alpha,0,1)){
+    if (isBetweenInclusive(this.alpha, 0, 1)) {
       window.requestAnimationFrame(() => {
         this.fadeIn(alphaStep)
       });
@@ -149,19 +179,13 @@ class ImageClass {
     this.alpha = clamp01(this.alpha);
   }
 }
-class CharacterClass{
-  constructor(charName, alpha=0){
+class CharacterClass {
+  constructor(charName, alpha = 0) {
     let char = charName;
-    if (char === 'blank')
-      char = " ";
-    if ((charName === " ") ||
-        (charName === ",") ||
-        (charName === ".") ||
-        (charName === ":") ||
-        (charName === ";")){
+    if (char === undefined)
       char = "";
-    }
-    var p = document.createElement("text");
+
+    let p = document.createElement("text");
     p.textContent = char;
     p.style.opacity = alpha;
     p.classList.add("currentCharacterDisplay");
@@ -172,48 +196,49 @@ class CharacterClass{
     this._alpha = alpha;
   }
 
-  get alpha() {
-    return this._alpha;
-  }
-
-  set alpha(newAlpha) {
-    this._alpha = parseFloat(newAlpha);
-    this.character.style.opacity = newAlpha;
-  }
-
-  fadeIn(alphaStep=0.05) {
-    this.alpha += alphaStep;
-
-    if (isBetweenInclusive(this.alpha,0,1)){
-      window.requestAnimationFrame(() => {
-        this.fadeIn(alphaStep)
-      });
-
-      if (this.alpha < 0){
-        console.log(this.character.parentElement);
-      this.character.parentElement.removeChild(this.character);
-      characters.splice(4, 1, this);
-    }
-    }
-
-    this.alpha = clamp01(this.alpha);
-  }
+get alpha() {
+  return this._alpha;
 }
 
-function clamp01(value){
+set alpha(newAlpha) {
+  this._alpha = newAlpha;
+  this.character.style.opacity = newAlpha;
+}
+
+fadeIn(alphaStep = 0.05) {
+  this.alpha += alphaStep;
+
+  if (this.alpha < 0) {
+    console.log(this.character.parentElement);
+    this.character.parentElement.removeChild(this.character);
+    characters.splice(4, 1, this);
+  }
+
+  if (isBetweenInclusive(this.alpha, 0, 1)) {
+    window.requestAnimationFrame(() => {
+      this.fadeIn(alphaStep)
+    });
+
+  }
+
+  this.alpha = clamp01(this.alpha);
+}
+}
+
+function clamp01(value) {
   if (value > 1) return 1;
   if (value < 0) return 0;
   return value;
 }
 
-function isBetweenInclusive(value, min,max){
+function isBetweenInclusive(value, min, max) {
 
   if ((value >= min) && (value <= max)) return true;
   return false;
 }
 
-function fadeOutAllText(){
-  for (let i = 0; i < characters.length; i++){
+function fadeOutAllText() {
+  for (let i = 0; i < characters.length; i++) {
     characters[i].fadeIn(-0.01);
   }
 }
